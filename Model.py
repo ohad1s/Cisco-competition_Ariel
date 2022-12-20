@@ -1,17 +1,14 @@
 ############# Imports, settings and first dataset view ###############
 import csv
-
 import pandas as pd
 import seaborn as sns
 import numpy as np
 import json
-
 from sklearn.feature_extraction.text import CountVectorizer, HashingVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, classification_report
-from collections import Counter
+
 
 # Set pandas to show all columns when you print a dataframe
 pd.set_option('display.max_columns', None)
@@ -49,7 +46,7 @@ df.drop('request.Attack_Tag', axis=1, inplace=True)
 for column in df.columns[df.isna().any()].tolist():
     # df.drop(column, axis=1, inplace=True)
     df[column] = df[column].fillna('None')
-#################  what? ################################
+
 # Setting features for further feature extraction by choosing columns
 # Some will be "simply" encoded via label encoding and others with HashingVectorizer
 
@@ -84,7 +81,6 @@ COLUMNS_TO_REMOVE = ['request.body',
                      'response.headers.Content-Length',
                      'request.headers.Date']
 
-
 # This is our main preprocessing function that will iterate over all of the chosen
 # columns and run some feature extraction models
 def vectorize_df(df):
@@ -117,6 +113,7 @@ X = df[features_list].to_numpy()
 # This column is the desired prediction we will train our model on
 y = np.stack(df[test_type])
 
+################## models: #########################
 
 ############# Logistic Regression: ################
 from sklearn.linear_model import LogisticRegression
