@@ -1,0 +1,7 @@
+,precision,recall,f1-score,support
+Benign,0.87212,0.84615,0.85894,403
+Malware,0.86695,0.88987,0.87826,454
+,,,,
+accuracy,,,0.86931,857
+macro avg,0.86954,0.860.,0.8686,857
+weighted avg,0.86938,0.86931,0.86918,857
