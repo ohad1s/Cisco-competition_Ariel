@@ -7,10 +7,11 @@ import json
 from sklearn.feature_extraction.text import CountVectorizer, HashingVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report
-
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 # Set pandas to show all columns when you print a dataframe
+from tabulate import tabulate
+
 pd.set_option('display.max_columns', None)
 
 # Global setting here you choose the dataset number and classification type for the model
@@ -77,9 +78,11 @@ COMPLEX_HEADERS = ['request.headers.User-Agent',
                    'response.headers.Set-Cookie'
                    ]
 
-COLUMNS_TO_REMOVE = ['request.body',
-                     'response.headers.Content-Length',
-                     'request.headers.Date']
+# COLUMNS_TO_REMOVE = ['request.body',
+#                      'response.headers.Content-Length',
+#                      'request.headers.Date']
+
+COLUMNS_TO_REMOVE = ['request.headers.Host','request.headers.Date', 'request.method','request.headers.Accept-Language']
 
 # This is our main preprocessing function that will iterate over all of the chosen
 # columns and run some feature extraction models
@@ -107,60 +110,80 @@ df = vectorize_df(df)
 features_list = df.columns.to_list()
 features_list.remove('label')
 features_list.remove('attack_type')
-#############################################
-X = df[features_list].to_numpy()
+##################### create encode from string values to float ########################
+from sklearn.preprocessing import OneHotEncoder
+# columns_to_encode = ['request.headers.Host', 'request.headers.User-Agent', 'request.headers.Accept-Encoding',
+#                      'request.headers.Accept', 'request.headers.Connection', 'request.headers.Accept-Language',
+#                      'request.headers.Sec-Fetch-Site', 'request.headers.Sec-Fetch-Mode', 'request.headers.Sec-Fetch-User',
+#                      'request.headers.Sec-Fetch-Dest', 'request.headers.Set-Cookie', 'request.headers.Date',
+#                      'request.method', 'request.url', 'request.headers.Cookie','request.body']
+
+
+columns_to_encode = ['request.headers.User-Agent', 'request.headers.Accept-Encoding',
+                     'request.headers.Accept', 'request.headers.Connection',
+                     'request.headers.Sec-Fetch-Site', 'request.headers.Sec-Fetch-Mode', 'request.headers.Sec-Fetch-User',
+                     'request.headers.Sec-Fetch-Dest', 'request.headers.Set-Cookie',
+                     'request.url', 'request.headers.Cookie','request.body']
+
+X = pd.get_dummies(df[features_list], columns=columns_to_encode)
 
 # This column is the desired prediction we will train our model on
 y = np.stack(df[test_type])
+y= pd.get_dummies(y, columns=columns_to_encode)
+# print(tabulate(X.head(), headers = 'keys', tablefmt = 'psql'))
+# breakpoint()
 
-############# Logistic Regression: ################
-from sklearn.linear_model import LogisticRegression
+############# Decision Tree : ################
+from sklearn.tree import DecisionTreeClassifier
 
 # Split the dataset into a training set and a test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=42)
 
-# Create a logistic regression model
-model = LogisticRegression(max_iter=1000000)
+# Create a decision tree classifier
+clf = DecisionTreeClassifier()
 
 # Train the model on the training data
-model.fit(X_train, y_train)
+clf.fit(X_train, y_train)
 
 ######### analyze the results: #########
 true_labels = y_test
-predictions = model.predict(X_test)
-cf_matrix = confusion_matrix(true_labels, predictions)
+predictions = clf.predict(X_test)
+# cf_matrix = confusion_matrix(true_labels, predictions)
 clf_report = classification_report(true_labels, predictions, digits=5)
-heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
-                      xticklabels=np.unique(true_labels),
-                      yticklabels=np.unique(true_labels))
+# heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
+#                       xticklabels=np.unique(true_labels),
+#                       yticklabels=np.unique(true_labels))
 
 # The heatmap is cool but this is the most important result
 print(clf_report)
+
+accuracy = accuracy_score(true_labels, predictions)
+print(f'Model accuracy: {accuracy:.2f}')
 ############# save the model to pickle file ##############
 import pickle
 
 # Save the model to a file
-with open("models/LogisticRegression.pkl", "wb") as f:
-    pickle.dump(model, f)
+with open("models/DecisionTree.pkl", "wb") as f:
+    pickle.dump(clf, f)
 
-############### Save the prediction of the 0.2 test data to a csv file and #################
-# Create a data frame with the predictions and true labels
-df = pd.DataFrame({'predictions': predictions, 'true_labels': true_labels})
+############## Save the prediction of the 0.2 test data to a csv file and #################
+# # Create a data frame with the predictions and true labels
+# df = pd.DataFrame({'predictions': predictions, 'true_labels': true_labels})
+#
+# # Write the data frame to a CSV file
+# df.to_csv('csvs/DecisionTree.csv', index=False)
 
-# Write the data frame to a CSV file
-df.to_csv('csvs/LogisticRegression.csv', index=False)
-
-############### Save the report of the 0.2 test data to a csv file and #################
-# Split the classification report into lines
-lines = clf_report.split('\n')
-
-# Open a file for writing
-with open('csvs/reports/LogisticRegressionReport.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    # Write the header row
-    writer.writerow(lines[0].split())
-    # Write the data rows
-    for line in lines[2:-1]:
-        writer.writerow(line.split())
+# ############### Save the report of the 0.2 test data to a csv file and #################
+# # Split the classification report into lines
+# lines = clf_report.split('\n')
+#
+# # Open a file for writing
+# with open('csvs/reports/DecisionTreeReport.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile)
+#     # Write the header row
+#     writer.writerow(lines[0].split())
+#     # Write the data rows
+#     for line in lines[2:-1]:
+#         writer.writerow(line.split())
 
 

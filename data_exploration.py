@@ -23,6 +23,6 @@ string_column = df['request.headers.Sec-Fetch-User']
 # Count the number of times each unique value appears in the column
 value_counts = string_column.value_counts(normalize=True)
 
-# Print the results
-print(value_counts)
-
+# print(value_counts)
+# value_counts.plot(kind='bar')
+# plt.show()
