@@ -7,7 +7,7 @@ import sns as sns
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.preprocessing import LabelEncoder
 
-from Model import vectorize_df, features_list
+from LogisticRegression import vectorize_df, features_list
 
 with open("models/LogisticRegression.pkl", "rb") as f:
     model = pickle.load(f)
