@@ -1,0 +1,25 @@
+request.headers.Host |
+request.headers.User-Agent | 
+request.headers.Accept-Encoding | 
+request.headers.Accept | 
+request.headers.Connection | 
+request.headers.Accept-Language | 
+request.headers.Sec-Fetch-Site | 
+request.headers.Sec-Fetch-Mode | 
+request.headers.Sec-Fetch-User | 
+request.headers.Sec-Fetch-Dest | 
+request.headers.Set-Cookie | 
+request.headers.Date | 
+request.method | 
+request.url | 
+request.body | 
+response.status | 
+response.headers.Content-Type | 
+response.headers.Content-Length | 
+response.status_code | 
+response.body | 
+request.headers.Cookie | 
+response.headers.Location | 
+request.headers.Content-Length | 
+response.headers.Set-Cookie | 
+### request.Attack_Tag |
