@@ -163,7 +163,7 @@ print(accuracy)
 import pickle
 
 # Save the model to a file
-with open("models/DecisionTree.pkl", "wb") as f:
+with open("models/KNN.pkl", "wb") as f:
     pickle.dump(knn, f)
 
 ############## Save the prediction of the 0.2 test data to a csv file and #################
