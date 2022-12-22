@@ -11,7 +11,7 @@ with open(f'combined_datasets_for_students/dataset_{str(dataset_number)}_train.j
     raw_ds = json.load(file)
 df = pd.json_normalize(raw_ds, max_level=2)
 
-print(tabulate(df.head(), headers = 'keys', tablefmt = 'psql'))
+print(tabulate(df.head(), headers='keys', tablefmt='psql'))
 
 # sns.histplot(df['response.headers.Content-Length'])
 # sns.histplot(df['response.status_code'])
