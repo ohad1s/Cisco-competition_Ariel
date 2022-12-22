@@ -1,7 +1,0 @@
-precision,recall,f1-score,support
-Benign,0.87047,0.76888,0.81652,437
-Malware,0.78556,0.88095,0.83053,420
-
-accuracy,0.82380,857
-macro,avg,0.82801,0.82492,0.82353,857
-weighted,avg,0.82886,0.82380,0.82339,857
