@@ -519,7 +519,7 @@ y = np.stack(df[test_type])
 
 # We split the dataset to train and test according to the required ration
 # Do not change the test_size -> you can change anything else
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1765, random_state=42, stratify=y)
 
 # We print the resulted datasets and count the difference 
 print(X_train.shape, y_train.shape)
@@ -549,20 +549,15 @@ heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
 # The heatmap is cool but this is the most important result
 print(clf_report)
 
+
+
 import pickle
 
 # Save the model to a file
 with open("models/RandomForestImprovement.pkl", "wb") as f:
     pickle.dump(clf, f)
 
-# -- Sheet 4 --
-
-# -*- coding: utf-8 -*-
-
-# -- Sheet 2 --
-
-# **############# Imports, settings and first dataset view ###############**
-
+# -- ManyAlgos --
 
 # Imports, settings and first dataset view
 import pandas as pd
@@ -573,9 +568,10 @@ import json
 from sklearn.feature_extraction.text import CountVectorizer, HashingVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, classification_report
 from collections import Counter
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import GradientBoostingClassifier
 
 # Set pandas to show all columns when you print a dataframe
 pd.set_option('display.max_columns', None)
@@ -708,6 +704,8 @@ print(features_list)
 # In this example our model must get features containing only numbers so we recheck to see if we missed anything during preprocessing
 df.dtypes
 
+df
+
 # Data train and test split preparations. Here we will insert our feature list and label list.
 # Afterwards the data will be trained and fitted on the amazing XGBoost model
 # X_Train and y_Train will be used for training
@@ -721,7 +719,7 @@ y = np.stack(df[test_type])
 
 # We split the dataset to train and test according to the required ration
 # Do not change the test_size -> you can change anything else
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1765, random_state=42, stratify=y)
 
 # We print the resulted datasets and count the difference 
 print(X_train.shape, y_train.shape)
@@ -729,26 +727,37 @@ print(X_test.shape, y_test.shape)
 counter = Counter(y)
 counter
 
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
-# Create a decision tree classifier
-clf = DecisionTreeClassifier()
+# # Create the gradient boosting classifier
+# clf = GradientBoostingClassifier()
 
-# Train the model on the training data
-clf.fit(X_train, y_train)
+# # Fit the classifier on the training data
+# clf.fit(X_train, y_train)
 
-######### analyze the results: #########
-true_labels = y_test
+# from sklearn.ensemble import AdaBoostClassifier
+# # Create the AdaBoost classifier
+# clf = AdaBoostClassifier()
+
+# # Fit the classifier on the training data
+# clf.fit(X_train, y_train)
+
+# from sklearn.cluster import KMeans
+# from sklearn.metrics import adjusted_rand_score
+# kmeans = KMeans(n_clusters=3)
+# clusters = kmeans.fit_predict(X_train)
+
+# # Compute the adjusted Rand index
+# ari = adjusted_rand_score(y_test, kmeans.predict(X_test))
+# print("Adjusted Rand index: {:.2f}".format(ari))
+
+sns.set(rc={'figure.figsize': (15, 8)})
 predictions = clf.predict(X_test)
-# cf_matrix = confusion_matrix(true_labels, predictions)
+true_labels = y_test
+cf_matrix = confusion_matrix(true_labels, predictions)
 clf_report = classification_report(true_labels, predictions, digits=5)
-# heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
-#                       xticklabels=np.unique(true_labels),
-#                       yticklabels=np.unique(true_labels))
+heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
+                      xticklabels=np.unique(true_labels),
+                      yticklabels=np.unique(true_labels))
 
 # The heatmap is cool but this is the most important result
 print(clf_report)
-
-accuracy = accuracy_score(true_labels, predictions)
-print(f'Model accuracy: {accuracy:.2f}')
 

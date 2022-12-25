@@ -9,7 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
-# Set pandas to show all columns when you print a dataframe
+# Set pandas to show all columns wgi hen you print a dataframe
 from tabulate import tabulate
 
 pd.set_option('display.max_columns', None)
