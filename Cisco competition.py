@@ -15,14 +15,14 @@ from sklearn.feature_extraction.text import CountVectorizer, HashingVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 from collections import Counter
 
 # Set pandas to show all columns when you print a dataframe
 pd.set_option('display.max_columns', None)
 
 # Global setting here you choose the dataset number and classification type for the model
-dataset_number = 1  # Options are [1, 2, 3, 4]
+dataset_number = 2  # Options are [1, 2, 3, 4]
 test_type = 'label'  # Options are ['label', 'attack_type']
 
 # Read the json and read it to a pandas dataframe object, you can change these settings
@@ -102,7 +102,7 @@ COMPLEX_HEADERS = ['request.headers.User-Agent',
                    'response.headers.Content-Type'
                    ]
 
-COLUMNS_TO_REMOVE = ['request.headers.Host']
+COLUMNS_TO_REMOVE = ['request.headers.Host', 'request.body']
 
 
 
@@ -145,6 +145,30 @@ print(features_list)
 # Recheck all datatype before training to see we don't have any objects in our features
 # In this example our model must get features containing only numbers so we recheck to see if we missed anything during preprocessing
 df.dtypes
+
+df2 =df.replace('Benign', 0)
+df2.loc[df['attack_type'] != 0, 'attack_type'] = 1
+df2
+
+df2.drop(['attack_type', 'label'], axis=1, inplace=True)
+
+df2.dtypes
+
+import plotly.express as px
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_diabetes
+
+pca = PCA()
+pca.fit(df2)
+exp_var_cumul = np.cumsum(pca.explained_variance_ratio_)
+
+px.area(
+    x=range(1, exp_var_cumul.shape[0] + 1),
+    y=exp_var_cumul,
+    labels={"x": "# Components", "y": "Explained Variance"}
+)
 
 df.to_csv("dataset_without_filter.csv")
 
@@ -376,7 +400,7 @@ from collections import Counter
 pd.set_option('display.max_columns', None)
 
 # Global setting here you choose the dataset number and classification type for the model
-dataset_number = 1  # Options are [1, 2, 3, 4]
+dataset_number = 2  # Options are [1, 2, 3, 4]
 test_type = 'label'  # Options are ['label', 'attack_type']
 
 # Read the json and read it to a pandas dataframe object, you can change these settings
@@ -429,7 +453,7 @@ df
 
 # On these headers we will run a "simple" BOW
 SIMPLE_HEADERS = ['request.headers.Accept-Encoding',
-                  'request.method',
+                #   'request.method',
                   'request.headers.Accept-Language',
                   'request.headers.Sec-Fetch-Site',
                   'request.headers.Sec-Fetch-Mode',
@@ -528,7 +552,7 @@ counter = Counter(y)
 counter
 
 # We choose our model of choice and set it's hyper parameters you can change anything
-clf = RandomForestClassifier(n_estimators=100)
+clf = RandomForestClassifier(n_estimators=1000)
 
 # Train Model
 clf.fit(X_train, y_train)
@@ -549,13 +573,39 @@ heatmap = sns.heatmap(cf_matrix, annot=True, cmap='Blues', fmt='g',
 # The heatmap is cool but this is the most important result
 print(clf_report)
 
-
-
 import pickle
 
 # Save the model to a file
 with open("models/RandomForestImprovement.pkl", "wb") as f:
     pickle.dump(clf, f)
+
+import pickle
+with open("models/RandomForestImprovement.pkl", "rb") as f:
+    model = pickle.load(f)
+
+# Now it's your turn, use the model you have just created :)
+
+# Read the valuation json, preprocess it and run your model 
+with open(f'combined_datasets_for_students/dataset_{str(dataset_number)}_val.json') as file:
+    raw_ds = json.load(file)
+test_df = pd.json_normalize(raw_ds, max_level=2)
+for column in test_df.columns[test_df.isna().any()].tolist():
+    # df.drop(column, axis=1, inplace=True)
+    test_df[column] = test_df[column].fillna('None')
+
+# Preprocess the validation dataset, remember that here you don't have the labels
+test_df = vectorize_df(test_df)
+# Predict with your model
+X = test_df[features_list].to_numpy()
+predictions = clf.predict(X)
+predictions
+
+
+test_df
+
+# Save your preditions
+enc = LabelEncoder()
+np.savetxt(f'results/dataset_{str(dataset_number)}_{test_type}_result.txt', enc.fit_transform(predictions), fmt='%2d')
 
 # -- ManyAlgos --
 
@@ -739,15 +789,6 @@ counter
 
 # # Fit the classifier on the training data
 # clf.fit(X_train, y_train)
-
-# from sklearn.cluster import KMeans
-# from sklearn.metrics import adjusted_rand_score
-# kmeans = KMeans(n_clusters=3)
-# clusters = kmeans.fit_predict(X_train)
-
-# # Compute the adjusted Rand index
-# ari = adjusted_rand_score(y_test, kmeans.predict(X_test))
-# print("Adjusted Rand index: {:.2f}".format(ari))
 
 sns.set(rc={'figure.figsize': (15, 8)})
 predictions = clf.predict(X_test)
