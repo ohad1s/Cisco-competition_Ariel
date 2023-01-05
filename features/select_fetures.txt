@@ -1,0 +1,20 @@
+
+LOG4J - 277
+df.loc[df['request.headers.Sec-Fetch-Dest'] != "document"] -> LOG4J 55
+df.loc[df['request.headers.Sec-Fetch-Site'] != "none"] -> LOG4J 36
+df.loc[df['request.headers.Accept-Encoding'] != "gzip, deflate, br"] -> LOG4J 48
+
+
+Cookie Injection - 566
+'request.headers.Cookie'
+'response.headers.Location',
+df.loc[df['response.headers.Set-Cookie'].notna()]  -> Cookie Injection 299
+df.loc[df['request.headers.Content-Length'] == '0']  -> Cookie Injection 299
+df.loc[df['request.method'] != "GET"] -> Cookie Injection 299
+df.loc[df['request.url'] == "http://127.0.0.1:5000/cookielogin"] -> Cookie Injection 566
+
+
+Log Forging  - 297
+df.loc[df['response.body'] == '{"error": "Not a number failed to parse"}'] ->Log Forging
+df.loc[df['response.headers.Content-Length'] == '46'] ->Log Forging   297
+

@@ -1,0 +1,25 @@
+1. request.headers.Host | X
+2. request.headers.User-Agent | 
+3. request.headers.Accept-Encoding | 
+4. request.headers.Accept |  X
+5. request.headers.Connection | X
+6. request.headers.Accept-Language | 
+7. request.headers.Sec-Fetch-Site | 
+8. request.headers.Sec-Fetch-Mode | 
+9. request.headers.Sec-Fetch-User | X
+10.request.headers.Sec-Fetch-Dest | 
+11.request.headers.Set-Cookie | X
+12.request.headers.Date | 
+13.request.method | 
+14.request.url | 
+15.request.body | X
+16.response.status | 
+17.response.headers.Content-Type | 
+18.response.headers.Content-Length | 
+19.response.status_code | 
+20.response.body | 
+21.request.headers.Cookie | 
+22.response.headers.Location | 
+23.request.headers.Content-Length | 
+24.response.headers.Set-Cookie | 
+### request.Attack_Tag |
